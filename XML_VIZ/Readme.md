@@ -6,13 +6,13 @@ A flexible tool to explore pulsar-search candidate XML files and generate rich d
 
 ```bash
 # Everything at once (default bundle)
-viz_xml_candidates.py *.xml --outfile all_plots.png
+xml_vizard.py *.xml --outfile all_plots.png
 
 # List all plot keys
-viz_xml_candidates.py *.xml --list-plots
+xml_vizard.py *.xml --list-plots
 
 # Pick and order plots
-viz_xml_candidates.py *.xml \
+xml_vizard.py *.xml \
   --plots pdm_hex kde_pdm harmonic_overlay fundamental_hist \
   --log-period --rfi-periods 1.0 0.02 0.0166667 --rfi-dm-bands 0 2 \
   --outfile discovery_suite.png
