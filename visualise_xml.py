@@ -8,12 +8,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+
 # -----------------------------
 # XML → pandas helpers
 # -----------------------------
 
 def parse_xml_to_df(file_path: str) -> pd.DataFrame:
-    """Parse a PEASOUP-style XML file of candidates into a DataFrame.
+    """Parse a PRESTO-style XML file of candidates into a DataFrame.
 
     Expected fields per <candidate>:
       period (float), dm (float), snr (float), nassoc (int), acc (float), nh (int)
@@ -134,6 +135,14 @@ def plot_hist_dm(ax, df, *, color, alpha, bins):
     ax.set_ylabel("count")
     return ax
 
+def plot_hist_snr(ax, df, *, color, alpha, bins, snr_xlim=None):
+    ax.hist(df["snr"], bins=bins, color=color, alpha=alpha)
+    if snr_xlim is not None:
+        ax.set_xlim(*snr_xlim)
+    ax.set_xlabel("SNR")
+    ax.set_ylabel("count")
+    return ax
+
 
 PLOTTERS = {
     "period_vs_snr": plot_period_vs_snr,
@@ -144,6 +153,7 @@ PLOTTERS = {
     "dm_vs_period_bubble": plot_dm_vs_period_bubble,
     "hist_period": plot_hist_period,
     "hist_dm": plot_hist_dm,
+    "hist_snr": plot_hist_snr,
 }
 
 DEFAULT_PLOTS = [
@@ -155,6 +165,7 @@ DEFAULT_PLOTS = [
     "dm_vs_period_bubble",
     "hist_period",
     "hist_dm",
+    "hist_snr",
 ]
 
 
@@ -163,7 +174,7 @@ DEFAULT_PLOTS = [
 # -----------------------------
 
 def build_argparser():
-    p = argparse.ArgumentParser(description="Visualize candidate data from one or more XML files (pandas version). Author: Fazal. Version: 12Aug2025")
+    p = argparse.ArgumentParser(description="Visualize candidate data from one or more XML files (pandas version). Author: Fazal. Version 12Aug2025")
     p.add_argument("xml_file", nargs="+", type=str, help="Path(s) or glob(s) to XML file(s)")
 
     # Filtering
@@ -190,18 +201,20 @@ def build_argparser():
 
     # Figure + styling
     p.add_argument("--figwidth", type=float, default=20.0, help="Figure width in inches (default: 20)")
-    p.add_argument("--per-plot-height", type=float, default=3.0, help="Height per subplot in inches (default: 3)")
+    p.add_argument("--per_plot_height", type=float, default=3.0, help="Height per subplot in inches (default: 3)")
     p.add_argument("--dpi", type=int, default=300, help="Figure DPI (default: 300)")
     p.add_argument("--alpha", type=float, default=0.5, help="Point/bar alpha (default: 0.5)")
     p.add_argument("--color", type=str, default="purple", help="Matplotlib color for points/bars (default: purple)")
     p.add_argument("--title", type=str, default="Candidates Overview", help="Figure title")
 
     # Plot-specific tuning
-    p.add_argument("--snr-scale", type=float, default=1.0, help="Bubble size scale for dm_vs_period_bubble (default: 1.0)")
-    p.add_argument("--period-hist-bins", type=int, default=2000, help="Bins for period histogram (default: 2000)")
-    p.add_argument("--dm-hist-bins", type=int, default=20, help="Bins for DM histogram (default: 20)")
-    p.add_argument("--period-xlim", type=float, nargs=2, default=None, metavar=("XMIN", "XMAX"), help="Optional xlim for period histogram and/or period axis")
-    p.add_argument("--period-vline", type=float, default=None, help="Optional vertical line in period vs snr plot")
+    p.add_argument("--snr_scale", type=float, default=1.0, help="Bubble size scale for dm_vs_period_bubble (default: 1.0)")
+    p.add_argument("--period_hist_bins", type=int, default=2000, help="Bins for period histogram (default: 2000)")
+    p.add_argument("--dm_hist_bins", type=int, default=20, help="Bins for DM histogram (default: 20)")
+    p.add_argument("--snr_hist_bins", type=int, default=1000, help="Bins for SNR histogram (default:1000)")
+    p.add_argument("--snr_hist_xlim", type=float, nargs=2, default=None, metavar=("XMIN", "XMAX"), help="Optional xlim for snr histogram and/or snr axis")
+    p.add_argument("--period_xlim", type=float, nargs=2, default=None, metavar=("XMIN", "XMAX"), help="Optional xlim for period histogram and/or period axis")
+    p.add_argument("--period_vline", type=float, default=None, help="Optional vertical line in period vs snr plot")
 
     # Output
     p.add_argument("--outfile", type=str, default="xml_statistics.png", help="Output image filename (default: xml_statistics.png)")
@@ -251,6 +264,8 @@ def main():
             fn(ax, df, color=args.color, alpha=args.alpha, bins=args.period_hist_bins, period_xlim=args.period_xlim)
         elif key == "hist_dm":
             fn(ax, df, color=args.color, alpha=args.alpha, bins=args.dm_hist_bins)
+        elif key == "hist_snr":
+            fn(ax, df, color=args.color, alpha=args.alpha, bins=args.snr_hist_bins, snr_xlim=args.snr_hist_xlim)
         else:
             # Generic signatures
             fn(ax, df, color=args.color, alpha=args.alpha)
@@ -268,3 +283,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
