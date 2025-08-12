@@ -1,4 +1,4 @@
-# XML Candidate Visualizer (pandas)
+# XML Candidate Visualizer 
 
 A flexible tool to explore pulsar-search candidate XML files and generate rich diagnostic plots. It’s designed for fast triage of real pulsars vs RFI using just the fields you already have (period, DM, SNR, acc, nassoc, nh).
 
